@@ -269,13 +269,14 @@ export function advanceTurn(state, { orcamento, imposto, acao = 'manter' } = {})
   });
 
   proximo.turno = state.turno + 1;
-  proximo.ano = ANO_INICIAL + proximo.turno;
   proximo.aprovacao = aprovacao;
   proximo.historico = [
     ...state.historico,
     {
       turno: proximo.turno,
-      ano: proximo.ano,
+      // O registro leva o ano que ACABOU de ser jogado (`state.ano`), não o
+      // próximo. Sem isso o eixo do gráfico começaria no ano 2.
+      ano: state.ano,
       criticidade: proximo.criticidade,
       inflacao: proximo.inflacao,
       aprovacao,
@@ -283,6 +284,7 @@ export function advanceTurn(state, { orcamento, imposto, acao = 'manter' } = {})
       evento: evento?.id ?? null,
     },
   ];
+  proximo.ano = ANO_INICIAL + proximo.turno;
 
   // 7. Fim de jogo
   const fim = checkGameOver({ regime, dificuldade, state: proximo, rng });
