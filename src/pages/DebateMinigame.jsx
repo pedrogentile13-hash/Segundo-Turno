@@ -120,6 +120,21 @@ function Debate({ broadcasterId, perguntas, indice, respostas, onResponder, onAv
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
       <div className="min-w-0 space-y-5">
+        {/* O relógio fica ACIMA das opções e grudado no topo no celular: com
+            10 segundos de prazo, não dá para o jogador ter que rolar a tela
+            para saber quanto tempo sobrou. */}
+        <div className="panel sticky top-0 z-10 p-4 shadow-lg shadow-black/40 lg:static lg:shadow-none">
+          <Timer
+            segundos={segundos}
+            chave={`${broadcasterId}-${indice}`}
+            pausado={aguardandoAvanco}
+            onExpirar={() => onResponder(timeoutAnswer())}
+          />
+          <p className="mt-2 hidden text-xs leading-snug text-graphite-500 sm:block">
+            Sem resposta no tempo, o silêncio entra no ar como resposta neutra fraca.
+          </p>
+        </div>
+
         <section className="panel p-5 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="label-caps text-brass-500">{pergunta.tema}</div>
@@ -187,18 +202,6 @@ function Debate({ broadcasterId, perguntas, indice, respostas, onResponder, onAv
           <div className="label-caps">{emissora.perfil}</div>
           <div className="mt-1 font-display text-xl text-graphite-100">{emissora.nome}</div>
           <p className="mt-2 text-xs leading-relaxed text-graphite-500">{emissora.descricao}</p>
-        </div>
-
-        <div className="panel p-4">
-          <Timer
-            segundos={segundos}
-            chave={`${broadcasterId}-${indice}`}
-            pausado={aguardandoAvanco}
-            onExpirar={() => onResponder(timeoutAnswer())}
-          />
-          <p className="mt-2 text-xs leading-snug text-graphite-500">
-            Sem resposta no tempo, o silêncio entra no ar como resposta neutra fraca.
-          </p>
         </div>
 
         <div className="panel p-4">
