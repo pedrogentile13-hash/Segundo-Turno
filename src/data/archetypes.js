@@ -1,9 +1,12 @@
 /**
- * 8 arquétipos políticos FICTÍCIOS para o draft.
+ * 12 arquétipos políticos FICTÍCIOS para o draft.
  *
  * Nenhum deles corresponde a uma pessoa real: são tipos-ideais construídos a
  * partir de estilos de campanha genéricos (o populista de redes, o sindicalista,
  * o fisiologista, o tecnocrata, etc). Nomes, siglas e biografias são inventados.
+ *
+ * O draft usa 8 por partida, sorteados destes 12 — é o que faz a segunda
+ * partida não ser idêntica à primeira.
  *
  * Cada arquétipo tem:
  *  - `attrs`: valores 0-99 nos 8 atributos (sempre com pelo menos 2 altos,
@@ -173,7 +176,90 @@ export const ARCHETYPES = [
       discurso_social: 31,
     },
   },
+  {
+    id: 'prefeita_da_capital',
+    nome: 'A Prefeita da Capital',
+    epiteto: 'Gestora municipal',
+    era: 'Ciclo das cidades como vitrine',
+    bio: 'Governou a maior cidade do país e sabe que obra entregue vale mais que discurso. Fora da capital, porém, quase ninguém sabe quem ela é.',
+    forte: ['gestao', 'rede_aliados'],
+    fraco: ['base_fiel'],
+    eixos: { economico: 30, costumes: 25 },
+    attrs: {
+      carisma: 64,
+      gestao: 88,
+      base_fiel: 37,
+      rejeicao: 41,
+      rede_aliados: 81,
+      resiliencia_imagem: 66,
+      discurso_economico: 72,
+      discurso_social: 58,
+    },
+  },
+  {
+    id: 'comunicador_de_radio',
+    nome: 'O Comunicador de Rádio',
+    epiteto: 'Populismo de microfone',
+    era: 'Ciclo das rádios do interior',
+    bio: 'Trinta anos falando na hora do almoço, resolvendo problema de ouvinte ao vivo. Conhece o nome da rua de cada cidade e não entende nada de orçamento.',
+    forte: ['carisma', 'discurso_social'],
+    fraco: ['gestao'],
+    eixos: { economico: -25, costumes: -35 },
+    attrs: {
+      carisma: 94,
+      gestao: 31,
+      base_fiel: 76,
+      rejeicao: 47,
+      rede_aliados: 58,
+      resiliencia_imagem: 69,
+      discurso_economico: 36,
+      discurso_social: 85,
+    },
+  },
+  {
+    id: 'juiz_aposentado',
+    nome: 'O Juiz Aposentado',
+    epiteto: 'Cruzada anticorrupção',
+    era: 'Ciclo das grandes operações',
+    bio: 'Saiu da toga direto para o palanque com uma bandeira só. Divide o país exatamente ao meio e não parece incomodado com isso.',
+    forte: ['resiliencia_imagem', 'gestao'],
+    fraco: ['rede_aliados'],
+    eixos: { economico: 50, costumes: -40 },
+    attrs: {
+      carisma: 57,
+      gestao: 80,
+      base_fiel: 72,
+      rejeicao: 79,
+      rede_aliados: 26,
+      resiliencia_imagem: 90,
+      discurso_economico: 61,
+      discurso_social: 34,
+    },
+  },
+  {
+    id: 'empresaria_do_agro',
+    nome: 'A Empresária do Agro',
+    epiteto: 'Bancada produtiva',
+    era: 'Ciclo das safras recordes',
+    bio: 'Terceira geração de uma família produtora, virou porta-voz de um setor inteiro. Fala em hectare e em dólar, e trava quando o assunto é periferia urbana.',
+    forte: ['discurso_economico', 'base_fiel'],
+    fraco: ['discurso_social'],
+    eixos: { economico: 78, costumes: -60 },
+    attrs: {
+      carisma: 59,
+      gestao: 74,
+      base_fiel: 83,
+      rejeicao: 58,
+      rede_aliados: 69,
+      resiliencia_imagem: 62,
+      discurso_economico: 91,
+      discurso_social: 24,
+    },
+  },
 ];
+
+/** Quantos arquétipos entram numa partida (dos 12 disponíveis). */
+export const ARCHETYPES_POR_PARTIDA = 8;
 
 export const ARCHETYPE_BY_ID = ARCHETYPES.reduce((acc, a) => {
   acc[a.id] = a;

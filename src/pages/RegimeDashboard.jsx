@@ -118,9 +118,9 @@ export default function RegimeDashboard() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[24rem_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[24rem_1fr] lg:gap-6">
         {/* ============================================ coluna de controles */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <section className="panel space-y-5 p-5">
             <div className="flex items-baseline justify-between">
               <div className="label-caps">orçamento — sempre 100%</div>
@@ -223,8 +223,8 @@ export default function RegimeDashboard() {
         </div>
 
         {/* ============================================= coluna de indicadores */}
-        <div className="space-y-5">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="min-w-0 space-y-5">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
             <StatTile
               rotulo="criticidade da população"
               valor={critico.criticidade}

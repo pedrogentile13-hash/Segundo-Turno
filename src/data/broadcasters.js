@@ -250,6 +250,161 @@ export const BROADCASTERS = [
           },
         ],
       },
+      {
+        id: 'rc_imposto',
+        tema: 'Reforma tributária',
+        texto: 'O senhor(a) aumentaria imposto sobre alta renda para bancar a redução no consumo?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Aumento, com faixa clara e regra de transição publicada antes da posse.',
+            tom: 'tecnico',
+            impactos: { esquerda_urbana: 5, nordeste_popular: 5, sul_sudeste_industrial: 4, classe_media_empresarial: -4, agro: -3 },
+          },
+          {
+            id: 'b',
+            texto: 'Não aumento nada. Simplifico o sistema e a arrecadação vem do crescimento.',
+            tom: 'conciliador',
+            impactos: { classe_media_empresarial: 6, agro: 5, centro_indeciso: 3, esquerda_urbana: -3 },
+          },
+          {
+            id: 'c',
+            texto: 'Quem ganha mais tem que pagar mais. Isso não é ideologia, é conta de padaria.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 6, esquerda_urbana: 5, classe_media_empresarial: -5, agro: -4, centro_indeciso: -1 },
+          },
+          {
+            id: 'd',
+            texto: 'Vou apresentar o desenho completo e submeter ao Congresso sem chantagem dos dois lados.',
+            tom: 'conciliador',
+            impactos: { centro_indeciso: 5, classe_media_empresarial: 2, sul_sudeste_industrial: 3 },
+          },
+        ],
+      },
+      {
+        id: 'rc_energia',
+        tema: 'Energia e tarifa',
+        texto: 'A conta de luz subiu acima da inflação por três anos seguidos. O que muda?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Revejo os contratos herdados e mudo a regra de repasse tarifário. É contrato, não é dogma.',
+            tom: 'tecnico',
+            impactos: { centro_indeciso: 5, sul_sudeste_industrial: 5, classe_media_empresarial: 4, nordeste_popular: 3 },
+          },
+          {
+            id: 'b',
+            texto: 'Tarifa social ampliada já, para quem não consegue pagar. O resto discute depois.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 6, esquerda_urbana: 4, classe_media_empresarial: -3 },
+          },
+          {
+            id: 'c',
+            texto: 'Investimento em geração distribuída, com marco regulatório estável para atrair capital.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 6, agro: 4, centro_indeciso: 3, jovem_universitario: 2 },
+          },
+          {
+            id: 'd',
+            texto: 'Alguém ficou rico com essa conta e não fui eu nem você. Vou abrir cada contrato.',
+            tom: 'confronto',
+            impactos: { nordeste_popular: 4, esquerda_urbana: 3, centro_indeciso: -3, classe_media_empresarial: -4 },
+          },
+        ],
+      },
+      {
+        id: 'rc_reforma_adm',
+        tema: 'Serviço público',
+        texto: 'Reforma administrativa: corta privilégio ou desmonta carreira de Estado?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Corto supersalário e penduricalho, e protejo a carreira de quem entra por concurso.',
+            tom: 'tecnico',
+            impactos: { centro_indeciso: 6, classe_media_empresarial: 5, esquerda_urbana: 2, sul_sudeste_industrial: 3 },
+          },
+          {
+            id: 'b',
+            texto: 'Servidor não é inimigo do país. Reforma que começa demonizando quem trabalha já nasce errada.',
+            tom: 'emocional',
+            impactos: { esquerda_urbana: 6, sul_sudeste_industrial: 4, classe_media_empresarial: -4, centro_indeciso: -2 },
+          },
+          {
+            id: 'c',
+            texto: 'Estado enxuto, avaliação de desempenho e fim da estabilidade automática.',
+            tom: 'valores',
+            impactos: { classe_media_empresarial: 6, agro: 4, direita_conservadora: 4, esquerda_urbana: -6 },
+          },
+          {
+            id: 'd',
+            texto: 'Construo isso com as próprias categorias na mesa. Reforma imposta não sobrevive ao mandato.',
+            tom: 'conciliador',
+            impactos: { centro_indeciso: 4, sul_sudeste_industrial: 4, esquerda_urbana: 3 },
+          },
+        ],
+      },
+      {
+        id: 'rc_habitacao',
+        tema: 'Moradia',
+        texto: 'O déficit habitacional não cai há uma década. Onde entra o seu governo?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Retomo financiamento de faixa baixa com meta física anual e fiscalização de entrega.',
+            tom: 'tecnico',
+            impactos: { nordeste_popular: 6, sul_sudeste_industrial: 5, centro_indeciso: 4, esquerda_urbana: 3 },
+          },
+          {
+            id: 'b',
+            texto: 'Regularizo o que já existe. Milhões de famílias moram há vinte anos num imóvel sem escritura.',
+            tom: 'conciliador',
+            impactos: { nordeste_popular: 5, direita_conservadora: 4, centro_indeciso: 4, classe_media_empresarial: 3 },
+          },
+          {
+            id: 'c',
+            texto: 'Casa própria é dignidade e é raiz de família. Não é gasto, é o alicerce de tudo.',
+            tom: 'valores',
+            impactos: { evangelico: 6, direita_conservadora: 4, nordeste_popular: 4, jovem_universitario: -2 },
+          },
+          {
+            id: 'd',
+            texto: 'Destravo licenciamento e crédito para o setor produzir. O Estado não precisa construir.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 6, agro: 3, esquerda_urbana: -4, nordeste_popular: -2 },
+          },
+        ],
+      },
+      {
+        id: 'rc_tecnologia',
+        tema: 'Plataformas e dados',
+        texto: 'O país deve regular as grandes plataformas digitais?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Regulo com regra de transparência de algoritmo e responsabilidade sobre anúncio pago.',
+            tom: 'tecnico',
+            impactos: { jovem_universitario: 5, esquerda_urbana: 5, centro_indeciso: 4, direita_conservadora: -4 },
+          },
+          {
+            id: 'b',
+            texto: 'Regulação vira censura na mão errada. Prefiro punir crime já previsto em lei.',
+            tom: 'valores',
+            impactos: { direita_conservadora: 6, evangelico: 4, jovem_universitario: -4, esquerda_urbana: -4 },
+          },
+          {
+            id: 'c',
+            texto: 'Chamo plataformas, imprensa e sociedade civil para desenhar isso junto, sem atropelo.',
+            tom: 'conciliador',
+            impactos: { centro_indeciso: 5, classe_media_empresarial: 3, jovem_universitario: 2 },
+          },
+          {
+            id: 'd',
+            texto: 'Essas empresas ganham fortuna aqui e não respondem a ninguém. Isso acaba comigo.',
+            tom: 'confronto',
+            impactos: { esquerda_urbana: 4, sul_sudeste_industrial: 2, classe_media_empresarial: -5, centro_indeciso: -3 },
+          },
+        ],
+      },
     ],
   },
 
@@ -460,6 +615,161 @@ export const BROADCASTERS = [
             texto: 'Não vou entrar nesse tipo de discussão. Prefiro voltar ao tema anterior.',
             tom: 'conciliador',
             impactos: { centro_indeciso: -4, direita_conservadora: -4, nordeste_popular: -3, jovem_universitario: -2 },
+          },
+        ],
+      },
+      {
+        id: 'tp_fila_sus',
+        tema: 'Saúde pública',
+        texto: '"Essa senhora aqui acordou às três da manhã pra pegar ficha. Três da manhã! Olha pra ela e fala."',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'A senhora não devia estar aqui contando isso. Devia estar em casa, já atendida. Me desculpa por isso.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 8, evangelico: 6, centro_indeciso: 5, sul_sudeste_industrial: 3 },
+          },
+          {
+            id: 'b',
+            texto: 'Vou pôr agendamento eletrônico e regulação de vaga por gravidade, não por fila de madrugada.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 4, centro_indeciso: 3, nordeste_popular: -1 },
+          },
+          {
+            id: 'c',
+            texto: 'Enquanto ela pegava ficha às três, tinha gente assinando contrato superfaturado. Vou atrás.',
+            tom: 'confronto',
+            impactos: { nordeste_popular: 6, direita_conservadora: 5, centro_indeciso: 3, esquerda_urbana: 2 },
+          },
+          {
+            id: 'd',
+            texto: 'É um problema estrutural que envolve União, estados e municípios. Vou coordenar os três.',
+            tom: 'conciliador',
+            impactos: { centro_indeciso: 1, nordeste_popular: -3, evangelico: -2 },
+          },
+        ],
+      },
+      {
+        id: 'tp_aposentadoria',
+        tema: 'Aposentadoria',
+        texto: '"O senhor(a) mexe na aposentadoria de quem já está contribuindo há trinta anos? Responde sim ou não."',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Não. Quem já contribuiu tem direito adquirido e comigo isso não se toca.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 7, sul_sudeste_industrial: 6, evangelico: 5, esquerda_urbana: 4, classe_media_empresarial: -3 },
+          },
+          {
+            id: 'b',
+            texto: 'Nenhuma regra vale para quem está na fila de chegada. Mudança só valeria daqui pra frente.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 5, centro_indeciso: 3, agro: 3, nordeste_popular: -2 },
+          },
+          {
+            id: 'c',
+            texto: 'Trabalhar a vida inteira e envelhecer sem sossego é uma vergonha para qualquer país.',
+            tom: 'valores',
+            impactos: { evangelico: 6, nordeste_popular: 5, direita_conservadora: 4, sul_sudeste_industrial: 3 },
+          },
+          {
+            id: 'd',
+            texto: 'Quem mexeu na sua aposentadoria já tem nome. Não fui eu e eu não vou repetir.',
+            tom: 'confronto',
+            impactos: { nordeste_popular: 6, sul_sudeste_industrial: 4, centro_indeciso: -2, classe_media_empresarial: -3 },
+          },
+        ],
+      },
+      {
+        id: 'tp_promessa',
+        tema: 'Promessa de campanha',
+        texto: '"Faz uma promessa aqui, ao vivo, olhando pra câmera. E se não cumprir?"',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Prometo uma só: se em dois anos a fila não cair, eu venho aqui de novo dar explicação.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 7, centro_indeciso: 6, evangelico: 5, sul_sudeste_industrial: 3 },
+          },
+          {
+            id: 'b',
+            texto: 'Não faço promessa de auditório. Faço meta publicada, com prazo e responsável.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 5, centro_indeciso: 2, nordeste_popular: -3, evangelico: -2 },
+          },
+          {
+            id: 'c',
+            texto: 'Prometo diante de Deus e dessa plateia que não vou trair quem confiou em mim.',
+            tom: 'valores',
+            impactos: { evangelico: 8, direita_conservadora: 5, nordeste_popular: 4, jovem_universitario: -4 },
+          },
+          {
+            id: 'd',
+            texto: 'Prometo que quem roubou vai devolver. E tem gente aqui que já sabe que eu falo sério.',
+            tom: 'confronto',
+            impactos: { direita_conservadora: 6, nordeste_popular: 4, centro_indeciso: -1, esquerda_urbana: -2 },
+          },
+        ],
+      },
+      {
+        id: 'tp_transporte',
+        tema: 'Transporte',
+        texto: '"Quatro horas por dia dentro de um ônibus. É isso que essa plateia vive. Qual é a sua?"',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Quatro horas por dia é um filho que você não vê crescer. Isso é roubo de vida.',
+            tom: 'emocional',
+            impactos: { sul_sudeste_industrial: 7, nordeste_popular: 6, centro_indeciso: 5, jovem_universitario: 4 },
+          },
+          {
+            id: 'b',
+            texto: 'Financio corredor de ônibus e trilho urbano com contrapartida de tarifa nos municípios.',
+            tom: 'tecnico',
+            impactos: { centro_indeciso: 4, classe_media_empresarial: 4, sul_sudeste_industrial: 4 },
+          },
+          {
+            id: 'c',
+            texto: 'Passe livre para estudante e desempregado, e subsídio direto na tarifa.',
+            tom: 'emocional',
+            impactos: { jovem_universitario: 7, esquerda_urbana: 5, nordeste_popular: 4, classe_media_empresarial: -4 },
+          },
+          {
+            id: 'd',
+            texto: 'Isso é competência municipal. Não vou prometer o que não está na minha mão.',
+            tom: 'conciliador',
+            impactos: { classe_media_empresarial: 2, centro_indeciso: -4, nordeste_popular: -5, sul_sudeste_industrial: -4 },
+          },
+        ],
+      },
+      {
+        id: 'tp_ataque',
+        tema: 'Ataque do adversário',
+        texto: '"Seu adversário disse essa semana que o senhor(a) é despreparado. Ele está aqui do outro lado da tela. Responde."',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Despreparado é quem teve a chance e deixou o país nesse estado. Eu ainda nem comecei.',
+            tom: 'confronto',
+            impactos: { direita_conservadora: 6, nordeste_popular: 5, centro_indeciso: 3, esquerda_urbana: 2 },
+          },
+          {
+            id: 'b',
+            texto: 'Não vou responder ofensa com ofensa. Quem decide isso é quem está assistindo.',
+            tom: 'conciliador',
+            impactos: { centro_indeciso: 2, classe_media_empresarial: 3, nordeste_popular: -3, direita_conservadora: -3 },
+          },
+          {
+            id: 'c',
+            texto: 'Ele tem razão numa coisa: eu não venho desse mundo. E é exatamente por isso que estou aqui.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 6, jovem_universitario: 5, centro_indeciso: 5, evangelico: 3 },
+          },
+          {
+            id: 'd',
+            texto: 'Preparo se mede em entrega. Comparo meu histórico com o dele linha por linha, quando ele quiser.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 5, centro_indeciso: 3, nordeste_popular: -2 },
           },
         ],
       },
@@ -676,9 +986,167 @@ export const BROADCASTERS = [
           },
         ],
       },
+      {
+        id: 'ra_infancia',
+        tema: 'Primeira infância',
+        texto: 'Onde uma criança de três anos deve passar o dia: em casa ou na creche?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Onde a família decidir. O que o Estado deve é oferecer a vaga e apoiar quem escolhe ficar.',
+            tom: 'valores',
+            impactos: { evangelico: 7, direita_conservadora: 5, nordeste_popular: 3, jovem_universitario: -3 },
+          },
+          {
+            id: 'b',
+            texto: 'Creche de qualidade é o investimento público com maior retorno medido que existe.',
+            tom: 'tecnico',
+            impactos: { esquerda_urbana: 5, classe_media_empresarial: 4, centro_indeciso: 4, jovem_universitario: 3 },
+          },
+          {
+            id: 'c',
+            texto: 'Sem creche, quem para de trabalhar é sempre a mãe. Isso também é uma escolha imposta.',
+            tom: 'emocional',
+            impactos: { jovem_universitario: 6, esquerda_urbana: 5, sul_sudeste_industrial: 4, evangelico: -3 },
+          },
+          {
+            id: 'd',
+            texto: 'Amplio a rede junto com estados e igrejas que já fazem esse acolhimento há décadas.',
+            tom: 'conciliador',
+            impactos: { evangelico: 6, centro_indeciso: 4, nordeste_popular: 4 },
+          },
+        ],
+      },
+      {
+        id: 'ra_ensino_domiciliar',
+        tema: 'Educação em casa',
+        texto: 'Famílias que querem educar os filhos em casa devem ter esse direito reconhecido?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Com marco legal claro, avaliação periódica da criança e registro. Direito com responsabilidade.',
+            tom: 'valores',
+            impactos: { evangelico: 7, direita_conservadora: 6, jovem_universitario: -4, esquerda_urbana: -4 },
+          },
+          {
+            id: 'b',
+            texto: 'A escola também socializa. Tirar a criança disso cobra um preço que ela não escolheu pagar.',
+            tom: 'tecnico',
+            impactos: { esquerda_urbana: 5, jovem_universitario: 4, centro_indeciso: 2, evangelico: -5 },
+          },
+          {
+            id: 'c',
+            texto: 'Não sou contra nem a favor por princípio. Quero ver a regra antes de assinar embaixo.',
+            tom: 'conciliador',
+            impactos: { centro_indeciso: 4, classe_media_empresarial: 3, evangelico: 1 },
+          },
+          {
+            id: 'd',
+            texto: 'Quem é contra isso na verdade quer controlar o que sua família pensa. É só isso.',
+            tom: 'confronto',
+            impactos: { direita_conservadora: 5, evangelico: 3, jovem_universitario: -7, esquerda_urbana: -6, centro_indeciso: -4 },
+          },
+        ],
+      },
+      {
+        id: 'ra_campo',
+        tema: 'Vida no campo',
+        texto: 'O jovem do interior está indo embora. Como se segura uma comunidade rural de pé?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Com raiz: escola no distrito, posto de saúde e internet. Ninguém sai de onde tem futuro.',
+            tom: 'valores',
+            impactos: { agro: 6, evangelico: 5, nordeste_popular: 5, direita_conservadora: 3 },
+          },
+          {
+            id: 'b',
+            texto: 'Crédito para o pequeno produtor e assistência técnica, com meta de renda por família.',
+            tom: 'tecnico',
+            impactos: { agro: 7, classe_media_empresarial: 4, centro_indeciso: 3, nordeste_popular: 3 },
+          },
+          {
+            id: 'c',
+            texto: 'Meu avô saiu do interior sem nada. Não quero que nenhum jovem precise repetir isso.',
+            tom: 'emocional',
+            impactos: { nordeste_popular: 6, evangelico: 5, agro: 4, sul_sudeste_industrial: 3 },
+          },
+          {
+            id: 'd',
+            texto: 'Faço junto com prefeituras, cooperativas e paróquias, que conhecem o território melhor que eu.',
+            tom: 'conciliador',
+            impactos: { evangelico: 5, agro: 4, centro_indeciso: 4, nordeste_popular: 3 },
+          },
+        ],
+      },
+      {
+        id: 'ra_midia_infantil',
+        tema: 'Telas e infância',
+        texto: 'Celular e rede social na mão de criança de dez anos: o Estado tem algo a dizer?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Tem: verificação de idade e proteção de dados de menor. A conta disso é da plataforma, não da mãe.',
+            tom: 'valores',
+            impactos: { evangelico: 7, direita_conservadora: 5, centro_indeciso: 5, classe_media_empresarial: 2 },
+          },
+          {
+            id: 'b',
+            texto: 'Regra baseada em evidência de saúde mental, com pediatra e escola participando do desenho.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 4, centro_indeciso: 4, jovem_universitario: 3, esquerda_urbana: 3 },
+          },
+          {
+            id: 'c',
+            texto: 'Quem cria filho sabe o que essa tela faz. Não precisa de estudo para enxergar o óbvio.',
+            tom: 'emocional',
+            impactos: { evangelico: 6, direita_conservadora: 5, nordeste_popular: 4, jovem_universitario: -4 },
+          },
+          {
+            id: 'd',
+            texto: 'Isso é assunto de família, não de governo. Não vou legislar sobre sala de estar.',
+            tom: 'conciliador',
+            impactos: { classe_media_empresarial: 3, jovem_universitario: 2, evangelico: -4, direita_conservadora: -2 },
+          },
+        ],
+      },
+      {
+        id: 'ra_perdao',
+        tema: 'Erro pessoal',
+        texto: 'Qual foi o maior erro da sua vida pública, e o que o senhor(a) fez com ele?',
+        opcoes: [
+          {
+            id: 'a',
+            texto: 'Confiei em quem não devia e demorei a admitir. Aprendi que humildade não é fraqueza.',
+            tom: 'valores',
+            impactos: { evangelico: 7, centro_indeciso: 6, direita_conservadora: 4, nordeste_popular: 4 },
+          },
+          {
+            id: 'b',
+            texto: 'Errei de método numa decisão técnica, corrigi e publiquei a correção. Está tudo documentado.',
+            tom: 'tecnico',
+            impactos: { classe_media_empresarial: 5, centro_indeciso: 3, evangelico: -2 },
+          },
+          {
+            id: 'c',
+            texto: 'Já magoei gente que me amava por causa de política. Isso me custa até hoje.',
+            tom: 'emocional',
+            impactos: { evangelico: 6, nordeste_popular: 5, centro_indeciso: 4, sul_sudeste_industrial: 3 },
+          },
+          {
+            id: 'd',
+            texto: 'Meu maior erro foi ser educado demais com quem estava destruindo esse país.',
+            tom: 'confronto',
+            impactos: { direita_conservadora: 5, centro_indeciso: -5, evangelico: -3, classe_media_empresarial: -4 },
+          },
+        ],
+      },
     ],
   },
 ];
+
+/** Quantas perguntas cada debate usa (sorteadas do banco da emissora). */
+export const PERGUNTAS_POR_DEBATE = 6;
 
 export const BROADCASTER_BY_ID = BROADCASTERS.reduce((acc, b) => {
   acc[b.id] = b;

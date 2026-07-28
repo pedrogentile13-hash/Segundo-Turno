@@ -6,9 +6,10 @@ import Timer from '../components/Timer.jsx';
 import SegmentBar from '../components/SegmentBar.jsx';
 import StatTile from '../components/StatTile.jsx';
 import { useGameStore } from '../store/gameStore.js';
-import { BROADCASTERS, BROADCASTER_BY_ID, TONES, DEBATE_TIMER_SECONDS } from '../data/broadcasters.js';
+import { BROADCASTERS, BROADCASTER_BY_ID, TONES, PERGUNTAS_POR_DEBATE } from '../data/broadcasters.js';
 import { SEGMENT_BY_ID } from '../data/segments.js';
-import { scoreAnswer, timeoutAnswer, runDebate, debateVerdict } from '../engine/debateEngine.js';
+import { scoreAnswer, timeoutAnswer, runDebate, debateVerdict, drawQuestions } from '../engine/debateEngine.js';
+import { useSettingsStore } from '../store/settingsStore.js';
 
 /** Lista compacta de impactos por segmento. */
 function ListaImpactos({ impactos, titulo = 'impacto por segmento' }) {
@@ -43,7 +44,7 @@ function SelecaoEmissora({ feitos, onEscolher, onFinalizar }) {
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {BROADCASTERS.map((b) => {
           const jaFoi = feitos.includes(b.id);
           return (
@@ -87,7 +88,7 @@ function SelecaoEmissora({ feitos, onEscolher, onFinalizar }) {
                 onClick={() => onEscolher(b.id)}
                 className={jaFoi ? 'btn-ghost mt-5 w-full' : 'btn-primary mt-5 w-full'}
               >
-                {jaFoi ? 'Debate já realizado' : `Entrar no estúdio (${b.perguntas.length} perguntas)`}
+                {jaFoi ? 'Debate já realizado' : `Entrar no estúdio (${PERGUNTAS_POR_DEBATE} perguntas)`}
               </button>
             </article>
           );
@@ -111,23 +112,23 @@ function SelecaoEmissora({ feitos, onEscolher, onFinalizar }) {
 // ===========================================================================
 // Fase 2 — debate em andamento
 // ===========================================================================
-function Debate({ broadcasterId, indice, respostas, onResponder, onAvancar, ultimaReacao }) {
+function Debate({ broadcasterId, perguntas, indice, respostas, onResponder, onAvancar, ultimaReacao, mostrarTom, segundos }) {
   const emissora = BROADCASTER_BY_ID[broadcasterId];
-  const pergunta = emissora.perguntas[indice];
+  const pergunta = perguntas[indice];
   const aguardandoAvanco = ultimaReacao !== null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
-      <div className="space-y-5">
-        <section className="panel p-6">
+      <div className="min-w-0 space-y-5">
+        <section className="panel p-5 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="label-caps text-brass-500">{pergunta.tema}</div>
             <div className="text-xs text-graphite-500">
-              pergunta {indice + 1} de {emissora.perguntas.length}
+              pergunta {indice + 1} de {perguntas.length}
             </div>
           </div>
 
-          <p className="mt-3 font-display text-xl leading-relaxed text-graphite-100">{pergunta.texto}</p>
+          <p className="mt-3 font-display text-lg leading-relaxed text-graphite-100 sm:text-xl">{pergunta.texto}</p>
           <p className="mt-2 text-xs text-graphite-500">— {emissora.apresentador}, {emissora.nome}</p>
         </section>
 
@@ -141,7 +142,11 @@ function Debate({ broadcasterId, indice, respostas, onResponder, onAvancar, ulti
                 className="panel panel-hover w-full p-4 text-left"
               >
                 <p className="text-sm leading-relaxed text-graphite-200">{opcao.texto}</p>
-                <span className="label-caps mt-2 inline-block text-graphite-600">tom {TONES[opcao.tom].nome}</span>
+                {mostrarTom && (
+                  <span className="label-caps mt-2 inline-block text-graphite-600">
+                    tom {TONES[opcao.tom].nome}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -171,13 +176,13 @@ function Debate({ broadcasterId, indice, respostas, onResponder, onAvancar, ulti
             </div>
 
             <button type="button" className="btn-primary mt-5" onClick={onAvancar}>
-              {indice + 1 < emissora.perguntas.length ? 'Próxima pergunta →' : 'Ver saldo do debate →'}
+              {indice + 1 < perguntas.length ? 'Próxima pergunta →' : 'Ver saldo do debate →'}
             </button>
           </section>
         )}
       </div>
 
-      <aside className="space-y-4 lg:sticky lg:top-8 lg:h-fit">
+      <aside className="min-w-0 space-y-4 lg:sticky lg:top-8 lg:h-fit">
         <div className="panel p-4">
           <div className="label-caps">{emissora.perfil}</div>
           <div className="mt-1 font-display text-xl text-graphite-100">{emissora.nome}</div>
@@ -186,7 +191,7 @@ function Debate({ broadcasterId, indice, respostas, onResponder, onAvancar, ulti
 
         <div className="panel p-4">
           <Timer
-            segundos={DEBATE_TIMER_SECONDS}
+            segundos={segundos}
             chave={`${broadcasterId}-${indice}`}
             pausado={aguardandoAvanco}
             onExpirar={() => onResponder(timeoutAnswer())}
@@ -213,7 +218,7 @@ function Debate({ broadcasterId, indice, respostas, onResponder, onAvancar, ulti
         <div className="panel p-4">
           <div className="label-caps mb-2">respostas até aqui</div>
           <div className="flex flex-wrap gap-1.5">
-            {emissora.perguntas.map((p, i) => {
+            {perguntas.map((p, i) => {
               const r = respostas[i];
               return (
                 <span
@@ -244,8 +249,12 @@ export default function DebateMinigame() {
   const sortearEvento = useGameStore((s) => s.sortearEvento);
   const aprovacao = useGameStore((s) => s.aprovacao)();
 
+  const mostrarTom = useSettingsStore((s) => s.mostrarTomDebate);
+  const segundosDebate = useSettingsStore((s) => s.segundosDebate);
+
   const [fase, setFase] = useState('selecao'); // selecao | debate | resumo | evento
   const [emissoraAtiva, setEmissoraAtiva] = useState(null);
+  const [perguntas, setPerguntas] = useState([]);
   const [indice, setIndice] = useState(0);
   const [respostas, setRespostas] = useState([]);
   const [ultimaReacao, setUltimaReacao] = useState(null);
@@ -271,18 +280,17 @@ export default function DebateMinigame() {
       setUltimaReacao({ ...resultado, mensagem, timeout: !!opcao.timeout, opcao });
       setRespostas((atual) => {
         const proximo = [...atual];
-        proximo[indice] = { ...resultado, opcao, perguntaId: emissora.perguntas[indice].id, broadcasterId: emissoraAtiva };
+        proximo[indice] = { ...resultado, opcao, perguntaId: perguntas[indice].id, broadcasterId: emissoraAtiva };
         return proximo;
       });
     },
-    [emissoraAtiva, indice, ultimaReacao],
+    [emissoraAtiva, indice, perguntas, ultimaReacao],
   );
 
   const avancar = useCallback(() => {
-    const emissora = BROADCASTER_BY_ID[emissoraAtiva];
     setUltimaReacao(null);
 
-    if (indice + 1 < emissora.perguntas.length) {
+    if (indice + 1 < perguntas.length) {
       setIndice(indice + 1);
       return;
     }
@@ -294,9 +302,12 @@ export default function DebateMinigame() {
     registrarDebate(emissoraAtiva, consolidado);
     setResumo(consolidado);
     setFase('resumo');
-  }, [emissoraAtiva, indice, respostas, registrarDebate]);
+  }, [emissoraAtiva, indice, perguntas, respostas, registrarDebate]);
 
   const iniciarDebate = (broadcasterId) => {
+    // A seed junta a partida e a emissora: o sorteio é estável se o jogador
+    // voltar, mas muda de uma partida para outra.
+    setPerguntas(drawQuestions(broadcasterId, campanha.seed + broadcasterId.length * 7717));
     setEmissoraAtiva(broadcasterId);
     setIndice(0);
     setRespostas([]);
@@ -359,11 +370,14 @@ export default function DebateMinigame() {
       {fase === 'debate' && (
         <Debate
           broadcasterId={emissoraAtiva}
+          perguntas={perguntas}
           indice={indice}
           respostas={respostas}
           onResponder={responder}
           onAvancar={avancar}
           ultimaReacao={ultimaReacao}
+          mostrarTom={mostrarTom}
+          segundos={segundosDebate}
         />
       )}
 
@@ -371,7 +385,7 @@ export default function DebateMinigame() {
         <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
           <section className="panel p-6">
             <p className="font-display text-xl leading-relaxed text-graphite-100">
-              {debateVerdict(resumo, BROADCASTER_BY_ID[emissoraAtiva].perguntas.length)}
+              {debateVerdict(resumo, perguntas.length)}
             </p>
 
             <div className="mt-6">
@@ -389,7 +403,7 @@ export default function DebateMinigame() {
               valor={resumo.saldo > 0 ? `+${resumo.saldo}` : resumo.saldo}
               tom={resumo.saldo > 0 ? 'bom' : 'ruim'}
             />
-            <StatTile rotulo="acertos de tom" valor={`${resumo.acertosDeTom}/${BROADCASTER_BY_ID[emissoraAtiva].perguntas.length}`} tom="atencao" />
+            <StatTile rotulo="acertos de tom" valor={`${resumo.acertosDeTom}/${perguntas.length}`} tom="atencao" />
             <StatTile rotulo="gafes virais" valor={resumo.gafes} tom={resumo.gafes > 0 ? 'ruim' : 'bom'} />
           </aside>
         </div>

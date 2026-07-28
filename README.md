@@ -10,6 +10,8 @@ Jogo de estratégia política em navegador, com dois modos independentes:
 React + Vite + JavaScript puro + Tailwind CSS. Sem TypeScript, sem dependência de
 charting, sem back-end.
 
+É um **PWA**: dá para instalar no celular pela tela de início e jogar offline.
+
 > **Ficção.** Nenhum político, partido, emissora, apresentador ou instituição real
 > é nomeado em qualquer ponto do código, dos dados ou dos textos. Os personagens
 > são arquétipos reconhecíveis pelo estilo. As emissoras são perfis editoriais
@@ -24,8 +26,13 @@ charting, sem back-end.
 npm install
 npm run dev          # http://localhost:5173
 npm run build
+npm run preview      # build de produção, com service worker ativo
 npm run test:engine  # banco de calibragem dos engines, sem UI
+npm run icons        # regenera os PNGs do app (só se a marca mudar)
 ```
+
+O service worker só roda no build de produção. Para testar instalação e modo
+offline, use `npm run preview`, não `npm run dev`.
 
 `npm run test:engine` roda `scripts/engineSmokeTest.mjs`: imprime os números que
 importam (aprovação por segmento, distribuição de resultados em 200 partidas,
@@ -40,10 +47,10 @@ lugar de calibrar peso antes de gastar tempo em tela.
 /src
   /data        dados puros, sem lógica
     attributes.js    8 atributos do candidato
-    archetypes.js    8 arquétipos fictícios do draft
+    archetypes.js    12 arquétipos fictícios (o draft sorteia 8)
     segments.js      9 segmentos eleitorais, pesos e afinidades
     parties.js       8 partidos aliados
-    broadcasters.js  3 emissoras + 18 perguntas de debate (4 opções cada)
+    broadcasters.js  3 emissoras × 11 perguntas (o debate sorteia 6)
     events.js        eventos de campanha e eventos históricos
     regimes.js       5 sistemas econômico-políticos e 3 dificuldades
   /engine      funções puras, sem JSX e sem React
@@ -57,9 +64,18 @@ lugar de calibrar peso antes de gastar tempo em tela.
     regimeEngine.js       orquestra um turno completo do Modo Regime
     random.js             RNG determinístico (mulberry32)
   /pages       uma tela por arquivo
+    Boot.jsx         abertura com animação de carregamento
+    MainMenu.jsx     menu principal
+    Tutorial.jsx     tutorial em abas
+    Settings.jsx     configurações
+    (+ as 9 telas de jogo)
   /components  AttributeCard, SegmentBar, Slider, Timer, StatTile,
-               CriticalityChart, Layout
-  /store       gameStore.js (Zustand)
+               CriticalityChart, Brand, Layout
+  /hooks       usePwaInstall.js
+  /store       gameStore.js (partida) e settingsStore.js (preferências)
+/scripts
+  engineSmokeTest.mjs  banco de calibragem
+  generateIcons.mjs    gera os PNGs do PWA sem dependência de imagem
 ```
 
 **Regra da casa:** nenhuma fórmula mora em componente ou na store. A store guarda
@@ -72,7 +88,9 @@ matemática inteira fora do React.
 
 ### Draft (8 rodadas)
 
-A cada rodada aparece um arquétipo e você herda **um** dos 8 atributos dele. O
+A cada rodada aparece um arquétipo e você herda **um** dos 8 atributos dele. Os 8
+arquétipos de cada partida são sorteados de um banco de **12**, então duas
+partidas seguidas não têm o mesmo elenco. O
 atributo escolhido trava e some das rodadas seguintes, então no fim os 8 slots
 estão preenchidos, cada um vindo de um arquétipo diferente.
 
@@ -116,7 +134,15 @@ confronto). Cada emissora premia dois tons e transforma outros dois em **gafe
 viral** — uma penalidade extra espalhada por toda a audiência do canal,
 independente do conteúdo da resposta.
 
-Timer de 10 segundos por pergunta. Sem resposta, entra uma neutra fraca.
+Cada emissora tem **11 perguntas** no banco e cada debate sorteia **6**, então a
+segunda partida não repete a primeira.
+
+Timer de 10 segundos por pergunta (ajustável para 7 ou 15 nas Configurações).
+Sem resposta, entra uma neutra fraca.
+
+Por padrão o rótulo de tom fica **escondido** — você lê o tom pelo texto, que é
+como o minigame foi pensado. Quem quiser o modo fácil liga o rótulo nas
+Configurações.
 
 O impacto de cada resposta é filtrado por audiência da emissora × volatilidade do
 segmento, então a mesma frase pesa muito num canal e quase nada em outro.
@@ -204,32 +230,59 @@ desfecho que a história reservou aos regimes expansionistas.
 
 ---
 
+## Aplicativo (PWA)
+
+- **Instalável**: no Android/desktop o próprio menu oferece "Instalar aplicativo"
+  via `beforeinstallprompt`. No iOS o navegador não permite instalação
+  programática, então o app explica o caminho manual (Compartilhar → Adicionar à
+  Tela de Início).
+- **Offline**: Workbox pré-cacheia o app inteiro no primeiro acesso. Depois
+  disso o jogo abre e roda sem rede — não há back-end nem chamada externa.
+- **Abertura**: tela de splash com o brasão sendo desenhado e barra de
+  carregamento, pulável e desligável nas Configurações.
+- **Menu**: nome do jogo, "Continuar partida" quando há jogo salvo, "Iniciar
+  partida" abrindo os dois modos, Tutorial, Configurações e instalação.
+- **Configurações**: rótulo de tom no debate, visibilidade do draft, tempo por
+  pergunta, redução de animações, pular abertura e apagar progresso.
+- **Tutorial**: três abas cobrindo as mecânicas que decidem a partida sem avisar.
+- **Persistência**: partida e preferências ficam em `localStorage`. Fechar o app
+  no meio de um debate e voltar depois funciona.
+- **Mobile**: safe areas do iOS respeitadas, alvos de toque de 44px, sliders mais
+  grossos no celular e zero rolagem horizontal (verificado em viewport de 390px
+  nas nove telas).
+- **Acessibilidade**: `prefers-reduced-motion` respeitado, foco sempre visível,
+  `aria-pressed`/`role="switch"`/`role="tab"` nos controles e `aria-live` na
+  barra de carregamento.
+
+---
+
 ## O que falta para a próxima etapa
 
-Está tudo listado em ordem de impacto no loop, não de esforço.
+Em ordem de impacto no loop, não de esforço.
 
 **Loop e balanceamento**
-1. O tom de cada resposta aparece rotulado na tela, o que torna a leitura da
-   linha editorial quase automática. Esconder o rótulo (ou revelá-lo só depois
-   da primeira gafe naquela emissora) devolveria a tensão ao minigame.
-2. Eventos de campanha só disparam depois de um debate. Vale espalhá-los por uma
+1. Eventos de campanha só disparam depois de um debate. Vale espalhá-los por uma
    linha do tempo própria, com 2–3 janelas de decisão entre eles.
-3. Segundo turno é uma conta só. Merece pelo menos um debate exclusivo e uma
+2. Segundo turno é uma conta só. Merece pelo menos um debate exclusivo e uma
    rodada de migração de voto segmento a segmento.
-4. Calibrar contra jogadores reais: hoje o alvo é 19% de vitória em 1º turno e
-   16% em 2º com atributos aleatórios, mas ninguém joga aleatoriamente.
+3. Calibrar contra jogadores reais. Os alvos atuais saíram de simulação, não de
+   gente jogando.
+4. O Modo Regime não tem escolha significativa nos primeiros turnos além dos
+   sliders. Faltam decisões de política com texto, como as do Modo Campanha.
 
 **Conteúdo**
-5. Banco de perguntas: 18 é o mínimo da spec. Com 12 por emissora e sorteio de 6,
-   a segunda partida deixa de ser idêntica à primeira.
-6. Mais arquétipos que os 8 do draft, para a ordem embaralhada valer alguma coisa.
-7. Eventos históricos por sistema, em vez de um pool único para os cinco.
+5. Eventos históricos por sistema, em vez de um pool único para os cinco.
+6. Mais partidos aliados e um sistema de negociação (o que cada um cobra para
+   entrar na coligação).
+7. Variantes de adversário de 2º turno com arquétipo definido, não só atributos
+   aleatórios.
 
 **Produto**
-8. Persistência (`localStorage`) — hoje um F5 apaga a partida.
-9. Histórico de partidas e comparação entre runs.
-10. Responsividade em telas pequenas: os painéis de duas colunas empilham, mas o
-    dashboard do regime ainda é apertado abaixo de 380px.
-11. Testes automatizados de componente (o `test:engine` cobre só a matemática).
-12. Acessibilidade: navegação por teclado no draft e nas opções de debate,
-    e `aria-live` no timer.
+8. Histórico de partidas e comparação entre runs — hoje o resultado some ao
+   começar a próxima.
+9. Testes automatizados de componente. O `test:engine` cobre a matemática, mas
+   as telas só foram verificadas dirigindo o navegador na mão.
+10. Notificação de atualização do service worker ("nova versão disponível,
+    recarregar?"), hoje a troca é silenciosa.
+11. Tradução/localização, se a ideia for publicar fora do Brasil.
+12. Áudio: o jogo é inteiramente silencioso.

@@ -7,6 +7,7 @@
  */
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 import { ARCHETYPE_BY_ID } from '../data/archetypes.js';
 import { ALLY_BY_ID, MAX_ALLIES } from '../data/parties.js';
@@ -40,237 +41,270 @@ const campanhaInicial = () => ({
   resultado: null,
 });
 
-export const useGameStore = create((set, get) => ({
-  // =========================================================================
-  // MODO CAMPANHA
-  // =========================================================================
-  campanha: campanhaInicial(),
+export const useGameStore = create(
+  persist(
+    (set, get) => ({
+      // =========================================================================
+      // MODO CAMPANHA
+      // =========================================================================
+      campanha: campanhaInicial(),
 
-  iniciarCampanha: (visibilidade = 'normal') => {
-    const seed = newSeed();
-    set({
-      campanha: {
-        ...campanhaInicial(),
-        seed,
-        visibilidade,
-        ordem: createDraftOrder(seed),
+      iniciarCampanha: (visibilidade = 'normal') => {
+        const seed = newSeed();
+        set({
+          campanha: {
+            ...campanhaInicial(),
+            seed,
+            visibilidade,
+            ordem: createDraftOrder(seed),
+          },
+        });
       },
-    });
-  },
 
-  definirVisibilidade: (visibilidade) =>
-    set((s) => ({ campanha: { ...s.campanha, visibilidade } })),
+      definirVisibilidade: (visibilidade) =>
+        set((s) => ({ campanha: { ...s.campanha, visibilidade } })),
 
-  /** Herda um atributo do arquétipo da rodada atual. */
-  escolherAtributo: (atributoId) => {
-    const { campanha } = get();
-    if (campanha.rodada >= TOTAL_ROUNDS) return;
+      /** Herda um atributo do arquétipo da rodada atual. */
+      escolherAtributo: (atributoId) => {
+        const { campanha } = get();
+        if (campanha.rodada >= TOTAL_ROUNDS) return;
 
-    const arquetipoId = campanha.ordem[campanha.rodada];
-    const arquetipo = ARCHETYPE_BY_ID[arquetipoId];
-    if (!arquetipo) return;
-    if (campanha.escolhas.some((e) => e.atributo === atributoId)) return;
+        const arquetipoId = campanha.ordem[campanha.rodada];
+        const arquetipo = ARCHETYPE_BY_ID[arquetipoId];
+        if (!arquetipo) return;
+        if (campanha.escolhas.some((e) => e.atributo === atributoId)) return;
 
-    const escolhas = [
-      ...campanha.escolhas,
-      { rodada: campanha.rodada + 1, arquetipo: arquetipoId, atributo: atributoId, valor: arquetipo.attrs[atributoId] },
-    ];
+        const escolhas = [
+          ...campanha.escolhas,
+          { rodada: campanha.rodada + 1, arquetipo: arquetipoId, atributo: atributoId, valor: arquetipo.attrs[atributoId] },
+        ];
 
-    set({
-      campanha: {
-        ...campanha,
-        escolhas,
-        rodada: campanha.rodada + 1,
-        draftCompleto: isDraftComplete(escolhas),
+        set({
+          campanha: {
+            ...campanha,
+            escolhas,
+            rodada: campanha.rodada + 1,
+            draftCompleto: isDraftComplete(escolhas),
+          },
+        });
       },
-    });
-  },
 
-  definirEixos: (eixos) =>
-    set((s) => ({
-      campanha: {
-        ...s.campanha,
-        eixosPartido: {
-          economico: clamp(eixos.economico, -100, 100),
-          costumes: clamp(eixos.costumes, -100, 100),
-        },
+      definirEixos: (eixos) =>
+        set((s) => ({
+          campanha: {
+            ...s.campanha,
+            eixosPartido: {
+              economico: clamp(eixos.economico, -100, 100),
+              costumes: clamp(eixos.costumes, -100, 100),
+            },
+          },
+        })),
+
+      alternarAliado: (aliadoId) =>
+        set((s) => {
+          const atuais = s.campanha.aliadosIds;
+          const jaTem = atuais.includes(aliadoId);
+          if (!jaTem && atuais.length >= MAX_ALLIES) return s;
+          return {
+            campanha: {
+              ...s.campanha,
+              aliadosIds: jaTem ? atuais.filter((id) => id !== aliadoId) : [...atuais, aliadoId],
+            },
+          };
+        }),
+
+      confirmarPartido: () => set((s) => ({ campanha: { ...s.campanha, partidoDefinido: true } })),
+
+      /** Soma o impacto de um debate concluído aos modificadores acumulados. */
+      registrarDebate: (broadcasterId, resultadoDebate) =>
+        set((s) => {
+          const modificadores = { ...s.campanha.modificadores };
+          for (const [segId, valor] of Object.entries(resultadoDebate.impactos)) {
+            modificadores[segId] = (modificadores[segId] || 0) + valor;
+          }
+          return {
+            campanha: {
+              ...s.campanha,
+              modificadores,
+              debatesFeitos: [...s.campanha.debatesFeitos, { broadcasterId, ...resultadoDebate }],
+            },
+          };
+        }),
+
+      /**
+       * Sorteia um evento de campanha. Devolve o evento resolvido (ou null) para a
+       * tela poder mostrá-lo — o efeito já fica registrado no estado.
+       */
+      sortearEvento: () => {
+        const { campanha } = get();
+        const attrs = get().atributosCandidato();
+        const aliados = get().aliados();
+        const aprovacaoGeral = get().aprovacao().geral;
+
+        const rng = createRng(campanha.seed + campanha.eventosLog.length * 104729 + campanha.debatesFeitos.length * 31);
+        const evento = rollCampaignEvent(rng, {
+          aprovacaoGeral,
+          aliados,
+          jaOcorridos: campanha.eventosLog.map((e) => e.evento.id),
+        });
+        if (!evento) return null;
+
+        const resolvido = applyCampaignEvent(evento, { attrs, aliados, rng });
+
+        set((s) => {
+          const modificadores = { ...s.campanha.modificadores };
+          for (const [segId, valor] of Object.entries(resolvido.impactos)) {
+            modificadores[segId] = (modificadores[segId] || 0) + valor;
+          }
+          const aliadosIds = resolvido.aliadoRemovido
+            ? s.campanha.aliadosIds.filter((id) => id !== resolvido.aliadoRemovido.id)
+            : s.campanha.aliadosIds;
+
+          return {
+            campanha: {
+              ...s.campanha,
+              modificadores,
+              aliadosIds,
+              ajusteRejeicao: s.campanha.ajusteRejeicao + resolvido.rejeicaoDelta,
+              eventosLog: [...s.campanha.eventosLog, resolvido],
+            },
+          };
+        });
+
+        return resolvido;
       },
-    })),
 
-  alternarAliado: (aliadoId) =>
-    set((s) => {
-      const atuais = s.campanha.aliadosIds;
-      const jaTem = atuais.includes(aliadoId);
-      if (!jaTem && atuais.length >= MAX_ALLIES) return s;
-      return {
-        campanha: {
-          ...s.campanha,
-          aliadosIds: jaTem ? atuais.filter((id) => id !== aliadoId) : [...atuais, aliadoId],
-        },
-      };
-    }),
+      apurarEleicao: () => {
+        const { campanha } = get();
+        const resultado = computeElectionResult({
+          attrs: get().atributosCandidato(),
+          eixosPartido: campanha.eixosPartido,
+          aliados: get().aliados(),
+          modificadores: campanha.modificadores,
+          seed: campanha.seed,
+        });
+        set((s) => ({ campanha: { ...s.campanha, resultado } }));
+        return resultado;
+      },
 
-  confirmarPartido: () => set((s) => ({ campanha: { ...s.campanha, partidoDefinido: true } })),
+      reiniciarCampanha: () => set({ campanha: campanhaInicial() }),
 
-  /** Soma o impacto de um debate concluído aos modificadores acumulados. */
-  registrarDebate: (broadcasterId, resultadoDebate) =>
-    set((s) => {
-      const modificadores = { ...s.campanha.modificadores };
-      for (const [segId, valor] of Object.entries(resultadoDebate.impactos)) {
-        modificadores[segId] = (modificadores[segId] || 0) + valor;
-      }
-      return {
-        campanha: {
-          ...s.campanha,
-          modificadores,
-          debatesFeitos: [...s.campanha.debatesFeitos, { broadcasterId, ...resultadoDebate }],
-        },
-      };
-    }),
+      // ---- seletores derivados (sempre recalculados a partir dos engines) ------
 
-  /**
-   * Sorteia um evento de campanha. Devolve o evento resolvido (ou null) para a
-   * tela poder mostrá-lo — o efeito já fica registrado no estado.
-   */
-  sortearEvento: () => {
-    const { campanha } = get();
-    const attrs = get().atributosCandidato();
-    const aliados = get().aliados();
-    const aprovacaoGeral = get().aprovacao().geral;
+      atributosCandidato: () => {
+        const { campanha } = get();
+        const attrs = buildCandidateAttrs(campanha.escolhas);
+        if (campanha.ajusteRejeicao && typeof attrs.rejeicao === 'number') {
+          attrs.rejeicao = clamp(attrs.rejeicao + campanha.ajusteRejeicao, 0, 99);
+        }
+        return attrs;
+      },
 
-    const rng = createRng(campanha.seed + campanha.eventosLog.length * 104729 + campanha.debatesFeitos.length * 31);
-    const evento = rollCampaignEvent(rng, {
-      aprovacaoGeral,
-      aliados,
-      jaOcorridos: campanha.eventosLog.map((e) => e.evento.id),
-    });
-    if (!evento) return null;
+      aliados: () => get().campanha.aliadosIds.map((id) => ALLY_BY_ID[id]).filter(Boolean),
 
-    const resolvido = applyCampaignEvent(evento, { attrs, aliados, rng });
+      aprovacao: () => {
+        const { campanha } = get();
+        return computeApproval({
+          attrs: get().atributosCandidato(),
+          eixosPartido: campanha.eixosPartido,
+          aliados: get().aliados(),
+          modificadores: campanha.modificadores,
+        });
+      },
 
-    set((s) => {
-      const modificadores = { ...s.campanha.modificadores };
-      for (const [segId, valor] of Object.entries(resolvido.impactos)) {
-        modificadores[segId] = (modificadores[segId] || 0) + valor;
-      }
-      const aliadosIds = resolvido.aliadoRemovido
-        ? s.campanha.aliadosIds.filter((id) => id !== resolvido.aliadoRemovido.id)
-        : s.campanha.aliadosIds;
+      overallCandidato: () => computeOverall(get().atributosCandidato()),
 
-      return {
-        campanha: {
-          ...s.campanha,
-          modificadores,
-          aliadosIds,
-          ajusteRejeicao: s.campanha.ajusteRejeicao + resolvido.rejeicaoDelta,
-          eventosLog: [...s.campanha.eventosLog, resolvido],
-        },
-      };
-    });
+      perfilDominante: () => computeDominantProfile(get().atributosCandidato()),
 
-    return resolvido;
-  },
+      arquetipoAtual: () => {
+        const { campanha } = get();
+        return ARCHETYPE_BY_ID[campanha.ordem[campanha.rodada]] ?? null;
+      },
 
-  apurarEleicao: () => {
-    const { campanha } = get();
-    const resultado = computeElectionResult({
-      attrs: get().atributosCandidato(),
-      eixosPartido: campanha.eixosPartido,
-      aliados: get().aliados(),
-      modificadores: campanha.modificadores,
-      seed: campanha.seed,
-    });
-    set((s) => ({ campanha: { ...s.campanha, resultado } }));
-    return resultado;
-  },
-
-  reiniciarCampanha: () => set({ campanha: campanhaInicial() }),
-
-  // ---- seletores derivados (sempre recalculados a partir dos engines) ------
-
-  atributosCandidato: () => {
-    const { campanha } = get();
-    const attrs = buildCandidateAttrs(campanha.escolhas);
-    if (campanha.ajusteRejeicao && typeof attrs.rejeicao === 'number') {
-      attrs.rejeicao = clamp(attrs.rejeicao + campanha.ajusteRejeicao, 0, 99);
-    }
-    return attrs;
-  },
-
-  aliados: () => get().campanha.aliadosIds.map((id) => ALLY_BY_ID[id]).filter(Boolean),
-
-  aprovacao: () => {
-    const { campanha } = get();
-    return computeApproval({
-      attrs: get().atributosCandidato(),
-      eixosPartido: campanha.eixosPartido,
-      aliados: get().aliados(),
-      modificadores: campanha.modificadores,
-    });
-  },
-
-  overallCandidato: () => computeOverall(get().atributosCandidato()),
-
-  perfilDominante: () => computeDominantProfile(get().atributosCandidato()),
-
-  arquetipoAtual: () => {
-    const { campanha } = get();
-    return ARCHETYPE_BY_ID[campanha.ordem[campanha.rodada]] ?? null;
-  },
-
-  // =========================================================================
-  // MODO REGIME
-  // =========================================================================
-  regime: null,
-  orcamentoRascunho: { ...DEFAULT_BUDGET },
-  impostoRascunho: 60,
-  acaoRascunho: 'manter',
-
-  iniciarRegime: (regimeId, dificuldadeId) => {
-    const state = createRegimeState({ regimeId, dificuldadeId, seed: newSeed() });
-    set({
-      regime: state,
-      orcamentoRascunho: { ...state.orcamento },
-      impostoRascunho: state.imposto,
+      // =========================================================================
+      // MODO REGIME
+      // =========================================================================
+      regime: null,
+      orcamentoRascunho: { ...DEFAULT_BUDGET },
+      impostoRascunho: 60,
       acaoRascunho: 'manter',
-    });
-  },
 
-  definirOrcamento: (orcamento) => set({ orcamentoRascunho: normalizeBudget(orcamento) }),
+      iniciarRegime: (regimeId, dificuldadeId) => {
+        const state = createRegimeState({ regimeId, dificuldadeId, seed: newSeed() });
+        set({
+          regime: state,
+          orcamentoRascunho: { ...state.orcamento },
+          impostoRascunho: state.imposto,
+          acaoRascunho: 'manter',
+        });
+      },
 
-  definirImposto: (imposto) => set({ impostoRascunho: clamp(imposto, 0, 100) }),
+      definirOrcamento: (orcamento) => set({ orcamentoRascunho: normalizeBudget(orcamento) }),
 
-  definirAcao: (acao) => set({ acaoRascunho: acao }),
+      definirImposto: (imposto) => set({ impostoRascunho: clamp(imposto, 0, 100) }),
 
-  /** Confirma o turno: só aqui o estado do regime avança de verdade. */
-  confirmarTurno: () => {
-    const { regime, orcamentoRascunho, impostoRascunho, acaoRascunho } = get();
-    if (!regime || regime.fim) return regime;
-    const proximo = advanceTurn(regime, {
-      orcamento: orcamentoRascunho,
-      imposto: impostoRascunho,
-      acao: acaoRascunho,
-    });
-    set({ regime: proximo, acaoRascunho: 'manter' });
-    return proximo;
-  },
+      definirAcao: (acao) => set({ acaoRascunho: acao }),
 
-  /** Números em tempo real do painel, sem consumir o turno. */
-  previewRegime: () => {
-    const { regime, orcamentoRascunho, impostoRascunho } = get();
-    if (!regime) return null;
-    return previewTurn(regime, orcamentoRascunho, impostoRascunho);
-  },
+      /** Confirma o turno: só aqui o estado do regime avança de verdade. */
+      confirmarTurno: () => {
+        const { regime, orcamentoRascunho, impostoRascunho, acaoRascunho } = get();
+        if (!regime || regime.fim) return regime;
+        const proximo = advanceTurn(regime, {
+          orcamento: orcamentoRascunho,
+          imposto: impostoRascunho,
+          acao: acaoRascunho,
+        });
+        set({ regime: proximo, acaoRascunho: 'manter' });
+        return proximo;
+      },
 
-  regimeAtual: () => {
-    const { regime } = get();
-    return regime ? REGIME_BY_ID[regime.regimeId] : null;
-  },
+      /** Números em tempo real do painel, sem consumir o turno. */
+      previewRegime: () => {
+        const { regime, orcamentoRascunho, impostoRascunho } = get();
+        if (!regime) return null;
+        return previewTurn(regime, orcamentoRascunho, impostoRascunho);
+      },
 
-  dificuldadeAtual: () => {
-    const { regime } = get();
-    return regime ? DIFFICULTY_BY_ID[regime.dificuldadeId] : null;
-  },
+      regimeAtual: () => {
+        const { regime } = get();
+        return regime ? REGIME_BY_ID[regime.regimeId] : null;
+      },
 
-  reiniciarRegime: () => set({ regime: null, orcamentoRascunho: { ...DEFAULT_BUDGET }, acaoRascunho: 'manter' }),
-}));
+      dificuldadeAtual: () => {
+        const { regime } = get();
+        return regime ? DIFFICULTY_BY_ID[regime.dificuldadeId] : null;
+      },
+
+      reiniciarRegime: () =>
+        set({ regime: null, orcamentoRascunho: { ...DEFAULT_BUDGET }, acaoRascunho: 'manter' }),
+
+      /** Apaga partida em andamento nos dois modos (usado nas Configurações). */
+      apagarProgresso: () =>
+        set({
+          campanha: campanhaInicial(),
+          regime: null,
+          orcamentoRascunho: { ...DEFAULT_BUDGET },
+          acaoRascunho: 'manter',
+        }),
+    }),
+    {
+      name: 'simulador-presidente:partida',
+      version: 1,
+      // Só o estado vai para o localStorage. Os seletores derivados são
+      // recalculados pelos engines a cada leitura, então persistir seria
+      // guardar número velho.
+      partialize: (s) => ({
+        campanha: s.campanha,
+        regime: s.regime,
+        orcamentoRascunho: s.orcamentoRascunho,
+        impostoRascunho: s.impostoRascunho,
+        acaoRascunho: s.acaoRascunho,
+      }),
+    },
+  ),
+);
+
+/** Existe partida de campanha em andamento (draft iniciado e não apurado)? */
+export function temCampanhaEmAndamento(campanha) {
+  return campanha.ordem.length > 0 && !campanha.resultado;
+}

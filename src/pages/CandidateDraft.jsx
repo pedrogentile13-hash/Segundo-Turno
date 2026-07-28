@@ -7,6 +7,7 @@ import { useGameStore } from '../store/gameStore.js';
 import { ATTRIBUTE_IDS, ATTRIBUTE_BY_ID, effectiveValue } from '../data/attributes.js';
 import { ARCHETYPE_BY_ID } from '../data/archetypes.js';
 import { TOTAL_ROUNDS } from '../engine/draftEngine.js';
+import { useSettingsStore } from '../store/settingsStore.js';
 
 /**
  * Resumo lateral do candidato em construção.
@@ -79,10 +80,12 @@ export default function CandidateDraft() {
   const overallCandidato = useGameStore((s) => s.overallCandidato);
   const perfilDominante = useGameStore((s) => s.perfilDominante);
 
-  // Entrou direto na URL sem passar pela home: inicia uma partida na hora.
+  const visibilidadeConfig = useSettingsStore((s) => s.visibilidadeDraft);
+
+  // Entrou direto na URL sem passar pelo menu: inicia uma partida na hora.
   useEffect(() => {
-    if (campanha.ordem.length === 0) iniciarCampanha(campanha.visibilidade);
-  }, [campanha.ordem.length, campanha.visibilidade, iniciarCampanha]);
+    if (campanha.ordem.length === 0) iniciarCampanha(visibilidadeConfig);
+  }, [campanha.ordem.length, visibilidadeConfig, iniciarCampanha]);
 
   const arquetipo = arquetipoAtual();
   const modoPro = campanha.visibilidade === 'pro';
@@ -103,7 +106,7 @@ export default function CandidateDraft() {
         />
 
         <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <section className="panel p-6">
               <div className="label-caps">perfil dominante</div>
               <h2 className="mt-1 font-display text-2xl text-brass-300">{perfil.dominante.nome}</h2>
@@ -153,7 +156,7 @@ export default function CandidateDraft() {
                 type="button"
                 className="btn-ghost"
                 onClick={() => {
-                  iniciarCampanha(campanha.visibilidade);
+                  iniciarCampanha(visibilidadeConfig);
                 }}
               >
                 Refazer draft
@@ -186,10 +189,10 @@ export default function CandidateDraft() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <section className="panel p-6">
             <div className="label-caps text-brass-500">{arquetipo.era}</div>
-            <h2 className="mt-1 font-display text-3xl text-graphite-100">{arquetipo.nome}</h2>
+            <h2 className="mt-1 font-display text-2xl text-graphite-100 sm:text-3xl">{arquetipo.nome}</h2>
             <p className="mt-0.5 text-sm text-brass-400">{arquetipo.epiteto}</p>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-graphite-400">{arquetipo.bio}</p>
 
@@ -209,7 +212,7 @@ export default function CandidateDraft() {
             )}
           </section>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             {ATTRIBUTE_IDS.map((id) => {
               const travado = campanha.escolhas.some((e) => e.atributo === id);
               return (

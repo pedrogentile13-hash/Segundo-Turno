@@ -76,7 +76,7 @@ export default function ApprovalPanel() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <ReguaEleitoral aprovacao={aprovacao.geral} />
 
           <section className="panel p-5">
@@ -128,7 +128,7 @@ export default function ApprovalPanel() {
         </div>
 
         {/* ------------------------------------------------------- lateral */}
-        <aside className="space-y-4 lg:sticky lg:top-8 lg:h-fit">
+        <aside className="min-w-0 space-y-4 lg:sticky lg:top-8 lg:h-fit">
           <StatTile
             rotulo="aprovação geral ponderada"
             valor={aprovacao.geral}

@@ -31,6 +31,8 @@ export const REGIMES = [
     tradeoff: 'Crescimento industrial forte × escassez crônica de consumo',
     indicePrincipal: { id: 'capacidade_produtiva', nome: 'Capacidade produtiva' },
     acento: 'moss',
+    // Posição do sistema no mesmo espectro dos segmentos populacionais.
+    eixos: { economico: -90, costumes: 15 },
     params: {
       crescimentoIndustrial: 1.35,
       multiplicadorDescontentamento: 1.1,
@@ -60,6 +62,8 @@ export const REGIMES = [
     tradeoff: 'Coesão rápida × instabilidade acumulada',
     indicePrincipal: { id: 'poder_militar', nome: 'Poder militar' },
     acento: 'brass',
+    // Posição do sistema no mesmo espectro dos segmentos populacionais.
+    eixos: { economico: -20, costumes: -80 },
     params: {
       crescimentoIndustrial: 1.1,
       multiplicadorDescontentamento: 1.25,
@@ -89,6 +93,8 @@ export const REGIMES = [
     tradeoff: 'Força militar imediata × colapso por sobre-extensão',
     indicePrincipal: { id: 'poder_militar', nome: 'Poder militar' },
     acento: 'alarm',
+    // Posição do sistema no mesmo espectro dos segmentos populacionais.
+    eixos: { economico: -10, costumes: -95 },
     params: {
       crescimentoIndustrial: 1.2,
       multiplicadorDescontentamento: 1.2,
@@ -118,6 +124,8 @@ export const REGIMES = [
     tradeoff: 'Crescimento volátil × desigualdade crescente',
     indicePrincipal: { id: 'capacidade_produtiva', nome: 'Capacidade produtiva' },
     acento: 'graphite',
+    // Posição do sistema no mesmo espectro dos segmentos populacionais.
+    eixos: { economico: 85, costumes: 30 },
     params: {
       crescimentoIndustrial: 1.25,
       multiplicadorDescontentamento: 1.0,
@@ -148,6 +156,8 @@ export const REGIMES = [
     tradeoff: 'Estabilidade alta × crescimento lento',
     indicePrincipal: { id: 'capacidade_produtiva', nome: 'Capacidade produtiva' },
     acento: 'calm',
+    // Posição do sistema no mesmo espectro dos segmentos populacionais.
+    eixos: { economico: -45, costumes: 60 },
     params: {
       crescimentoIndustrial: 0.85,
       multiplicadorDescontentamento: 0.75,

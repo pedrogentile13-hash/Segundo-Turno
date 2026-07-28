@@ -9,11 +9,11 @@
  *    arquétipo diferente.
  */
 
-import { ARCHETYPES } from '../data/archetypes.js';
+import { ARCHETYPES, ARCHETYPES_POR_PARTIDA } from '../data/archetypes.js';
 import { ATTRIBUTE_IDS } from '../data/attributes.js';
 import { shuffle, createRng, randInt } from './random.js';
 
-export const TOTAL_ROUNDS = 8;
+export const TOTAL_ROUNDS = ARCHETYPES_POR_PARTIDA;
 
 export const VISIBILITY_MODES = [
   {
@@ -28,10 +28,15 @@ export const VISIBILITY_MODES = [
   },
 ];
 
-/** Monta a ordem dos arquétipos de uma partida. */
+/**
+ * Sorteia os arquétipos de uma partida: embaralha os 12 e leva os 8 primeiros.
+ * Quem não entrou nesta partida pode aparecer na próxima.
+ */
 export function createDraftOrder(seed = Date.now()) {
   const rng = createRng(seed);
-  return shuffle(rng, ARCHETYPES).map((a) => a.id);
+  return shuffle(rng, ARCHETYPES)
+    .slice(0, TOTAL_ROUNDS)
+    .map((a) => a.id);
 }
 
 /** Atributos ainda disponíveis dado o que já foi escolhido. */

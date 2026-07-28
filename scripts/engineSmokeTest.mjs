@@ -9,7 +9,7 @@ import { ARCHETYPES, ARCHETYPE_BY_ID } from '../src/data/archetypes.js';
 import { ATTRIBUTE_IDS } from '../src/data/attributes.js';
 import { SEGMENTS, TOTAL_SEGMENT_WEIGHT } from '../src/data/segments.js';
 import { ALLY_BY_ID } from '../src/data/parties.js';
-import { BROADCASTERS } from '../src/data/broadcasters.js';
+import { BROADCASTERS, PERGUNTAS_POR_DEBATE } from '../src/data/broadcasters.js';
 import { CAMPAIGN_EVENT_BY_ID } from '../src/data/events.js';
 import { REGIMES, DIFFICULTY_BY_ID, DEFAULT_BUDGET } from '../src/data/regimes.js';
 
@@ -19,10 +19,11 @@ import {
   computeDominantProfile,
   analyzeCoalition,
 } from '../src/engine/approvalEngine.js';
-import { scoreAnswer, runDebate } from '../src/engine/debateEngine.js';
+import { scoreAnswer, runDebate, drawQuestions } from '../src/engine/debateEngine.js';
 import { applyCampaignEvent } from '../src/engine/eventEngine.js';
 import { computeElectionResult } from '../src/engine/electionEngine.js';
 import { createRegimeState, advanceTurn, previewTurn, summarizeRun } from '../src/engine/regimeEngine.js';
+import { createDraftOrder } from '../src/engine/draftEngine.js';
 import { createRng } from '../src/engine/random.js';
 
 let falhas = 0;
@@ -45,7 +46,18 @@ function barra(valor, largura = 28) {
 // ---------------------------------------------------------------------------
 titulo('1. Sanidade dos dados');
 
-check('8 arquétipos', ARCHETYPES.length === 8, `${ARCHETYPES.length}`);
+check('12 arquétipos no banco', ARCHETYPES.length === 12, `${ARCHETYPES.length}`);
+check(
+  'draft sorteia 8 arquétipos distintos dos 12',
+  (() => {
+    const ordem = createDraftOrder(4242);
+    return ordem.length === 8 && new Set(ordem).size === 8;
+  })(),
+);
+check(
+  'seeds diferentes geram drafts diferentes',
+  createDraftOrder(1).join() !== createDraftOrder(2).join(),
+);
 check('9 segmentos', SEGMENTS.length === 9);
 check('pesos dos segmentos somam 1.0', Math.abs(TOTAL_SEGMENT_WEIGHT - 1) < 0.001, TOTAL_SEGMENT_WEIGHT.toFixed(3));
 check(
@@ -63,8 +75,30 @@ check(
 );
 check('3 emissoras', BROADCASTERS.length === 3);
 check(
-  'cada emissora tem >= 6 perguntas com 4 opções',
-  BROADCASTERS.every((b) => b.perguntas.length >= 6 && b.perguntas.every((p) => p.opcoes.length === 4)),
+  'cada emissora tem banco maior que a rodada, com 4 opções por pergunta',
+  BROADCASTERS.every(
+    (b) => b.perguntas.length > PERGUNTAS_POR_DEBATE && b.perguntas.every((p) => p.opcoes.length === 4),
+  ),
+  BROADCASTERS.map((b) => `${b.id}:${b.perguntas.length}`).join(' '),
+);
+check(
+  'todo id de pergunta é único',
+  (() => {
+    const ids = BROADCASTERS.flatMap((b) => b.perguntas.map((p) => p.id));
+    return new Set(ids).size === ids.length;
+  })(),
+);
+check(
+  'sorteio devolve o número certo de perguntas, sem repetir',
+  BROADCASTERS.every((b) => {
+    const draw = drawQuestions(b.id, 99);
+    return draw.length === PERGUNTAS_POR_DEBATE && new Set(draw.map((p) => p.id)).size === draw.length;
+  }),
+);
+check(
+  'seeds diferentes sorteiam perguntas diferentes',
+  drawQuestions('tv_pulso', 1).map((p) => p.id).join() !==
+    drawQuestions('tv_pulso', 2).map((p) => p.id).join(),
 );
 check('5 sistemas de regime', REGIMES.length === 5);
 
@@ -148,13 +182,13 @@ check('tom errado marca gafe viral', r2.gafe === true);
 check('gafe custa mais caro que a resposta certa', soma(r2.impactos) < soma(r1.impactos));
 
 const debate = runDebate(
-  pulso.perguntas.map((p) => ({
+  drawQuestions('tv_pulso', 7).map((p) => ({
     broadcasterId: 'tv_pulso',
     perguntaId: p.id,
     opcao: p.opcoes.find((o) => o.tom === 'emocional') || p.opcoes[0],
   })),
 );
-console.log(`  Debate inteiro no tom: saldo ${debate.saldo}, acertos de tom ${debate.acertosDeTom}/6, gafes ${debate.gafes}`);
+console.log(`  Debate inteiro no tom: saldo ${debate.saldo}, acertos de tom ${debate.acertosDeTom}/${PERGUNTAS_POR_DEBATE}, gafes ${debate.gafes}`);
 check('debate inteiro no tom não gera gafe', debate.gafes === 0);
 
 // ---------------------------------------------------------------------------
@@ -285,7 +319,32 @@ console.log(`  Território final ${expansionista.territorio} | poder militar ${e
 check('expansão sem lastro leva a colapso', expansionista.fim.id === 'colapso_overextension');
 
 // ---------------------------------------------------------------------------
-titulo('11. Modo Regime — preview reage a slider (modo Fácil)');
+titulo('11. Modo Regime — os 9 segmentos reagem ao sistema, não só ao orçamento');
+
+for (const rid of ['economia_planejada', 'capitalismo_liberal', 'hipermilitarizacao']) {
+  const st = createRegimeState({ regimeId: rid, dificuldadeId: 'medio', seed: 5 });
+  const p = previewTurn(st); // orçamento exatamente no padrão
+  const ord = Object.entries(p.segmentos).sort((a, b) => b[1] - a[1]);
+  const amplitude = ord[0][1] - ord[ord.length - 1][1];
+  console.log(
+    `  ${p.regime.nome.padEnd(34)} melhor ${ord[0][0]} ${ord[0][1]} | pior ${ord[ord.length - 1][0]} ${ord[ord.length - 1][1]} | amplitude ${amplitude.toFixed(1)}`,
+  );
+  check(`  ${rid}: segmentos não são todos iguais`, amplitude > 5, amplitude.toFixed(1));
+}
+
+const planejada = previewTurn(createRegimeState({ regimeId: 'economia_planejada', dificuldadeId: 'medio', seed: 5 }));
+const liberal = previewTurn(createRegimeState({ regimeId: 'capitalismo_liberal', dificuldadeId: 'medio', seed: 5 }));
+check(
+  'esquerda urbana prefere economia planejada a capitalismo liberal',
+  planejada.segmentos.esquerda_urbana > liberal.segmentos.esquerda_urbana,
+);
+check(
+  'classe média empresarial prefere capitalismo liberal a economia planejada',
+  liberal.segmentos.classe_media_empresarial > planejada.segmentos.classe_media_empresarial,
+);
+
+// ---------------------------------------------------------------------------
+titulo('12. Modo Regime — preview reage a slider (modo Fácil)');
 
 const facil = createRegimeState({ regimeId: 'social_democracia', dificuldadeId: 'facil', seed: 9 });
 const pInfra = previewTurn(facil, { educacao: 25, saude: 25, defesa: 5, infraestrutura: 40, propaganda: 5 }, 65);

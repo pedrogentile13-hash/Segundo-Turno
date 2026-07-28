@@ -84,3 +84,109 @@ input[type='range']::-moz-range-thumb {
 .animate-alarm {
   animation: pulse-alarm 1s ease-in-out infinite;
 }
+
+/* --------------------------------------------------------------------------
+   Tela de abertura
+   -------------------------------------------------------------------------- */
+
+@keyframes brand-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.brand-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: brand-draw 1.1s ease-out forwards;
+}
+
+.brand-draw-delay {
+  animation-delay: 0.5s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  opacity: 0;
+  animation: rise 0.7s ease-out 0.85s forwards;
+}
+
+.animate-rise-delay {
+  animation-delay: 1.15s;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.26s ease-in forwards;
+}
+
+/* --------------------------------------------------------------------------
+   Acessibilidade e celular
+   -------------------------------------------------------------------------- */
+
+/* Ligado pela classe na raiz (Configurações) ou pela preferência do sistema. */
+.sem-animacao *,
+.sem-animacao *::before,
+.sem-animacao *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Foco sempre visível — a navegação por teclado tem que dar para acompanhar. */
+:focus-visible {
+  outline: 2px solid theme('colors.brass.400');
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  /* Alvo de toque mínimo confortável no celular. */
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='switch'] {
+    min-height: 2.75rem;
+  }
+
+  /* Trilho do slider mais grosso para arrastar com o dedo. */
+  input[type='range'] {
+    @apply h-2.5;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    @apply h-6 w-6;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    @apply h-6 w-6;
+  }
+}

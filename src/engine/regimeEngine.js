@@ -133,7 +133,12 @@ export function previewTurn(state, orcamentoProposto = null, impostoProposto = n
     aprovacao,
     indice: indicePrincipal(regime, economia),
     segmentos: dificuldade.mostrarSegmentos
-      ? computeRegimeSegments({ orcamento, aprovacaoBase: aprovacao, inflacao: economia.inflacao })
+      ? computeRegimeSegments({
+          regime,
+          orcamento,
+          aprovacaoBase: aprovacao,
+          inflacao: economia.inflacao,
+        })
       : null,
   };
 }

@@ -12,8 +12,9 @@
  */
 
 import { SEGMENTS, SEGMENT_BY_ID } from '../data/segments.js';
-import { BROADCASTER_BY_ID, TIMEOUT_ANSWER } from '../data/broadcasters.js';
+import { BROADCASTER_BY_ID, TIMEOUT_ANSWER, PERGUNTAS_POR_DEBATE } from '../data/broadcasters.js';
 import { round1 } from './approvalEngine.js';
+import { createRng, shuffle } from './random.js';
 
 const ESCALA_IMPACTO = 0.6; // converte o impacto bruto da opção em pontos de aprovação
 const BONUS_TOM = 1.35;
@@ -58,6 +59,18 @@ export function scoreAnswer(broadcasterId, opcao) {
 /** Resposta usada quando o timer estoura. */
 export function timeoutAnswer() {
   return TIMEOUT_ANSWER;
+}
+
+/**
+ * Sorteia as perguntas de um debate a partir do banco da emissora.
+ * Cada emissora tem mais perguntas do que cabem numa rodada, então a segunda
+ * partida não repete a primeira.
+ */
+export function drawQuestions(broadcasterId, seed, quantidade = PERGUNTAS_POR_DEBATE) {
+  const emissora = BROADCASTER_BY_ID[broadcasterId];
+  if (!emissora) return [];
+  const rng = createRng(seed ?? Date.now());
+  return shuffle(rng, emissora.perguntas).slice(0, Math.min(quantidade, emissora.perguntas.length));
 }
 
 /**

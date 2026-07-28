@@ -23,19 +23,19 @@ export default function RegimeResult() {
       <ScreenHeader passo={`${resumo.regime.nome} · ${resumo.dificuldade.nome}`} titulo="Fim do regime" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <section
-            className={`panel p-8 text-center ${sobreviveu ? 'border-calm/50 bg-calm/5' : 'border-alarm/50 bg-alarm/5'}`}
+            className={`panel p-6 text-center sm:p-8 ${sobreviveu ? 'border-calm/50 bg-calm/5' : 'border-alarm/50 bg-alarm/5'}`}
           >
             <div className="font-display text-5xl">{resumo.causa.icone}</div>
             <div className={`label-caps mt-4 ${sobreviveu ? 'text-calm' : 'text-alarm'}`}>
               {sobreviveu ? 'o regime chegou ao fim do período' : 'o regime caiu'}
             </div>
-            <h2 className={`mt-1 font-display text-3xl ${sobreviveu ? 'text-calm' : 'text-alarm'}`}>
+            <h2 className={`mt-1 font-display text-2xl sm:text-3xl ${sobreviveu ? 'text-calm' : 'text-alarm'}`}>
               {resumo.causa.nome}
             </h2>
 
-            <div className="mt-6 font-display text-6xl tabular-nums text-graphite-100">{anoFinal}</div>
+            <div className="mt-6 font-display text-4xl tabular-nums text-graphite-100 sm:text-5xl lg:text-6xl">{anoFinal}</div>
             <p className="mt-1 text-xs text-graphite-500">duração do regime</p>
 
             <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-graphite-400">
@@ -87,7 +87,7 @@ export default function RegimeResult() {
           </section>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-8 lg:h-fit">
+        <aside className="min-w-0 space-y-4 lg:sticky lg:top-8 lg:h-fit">
           <StatTile
             rotulo="pico de criticidade"
             valor={resumo.picoCriticidade}

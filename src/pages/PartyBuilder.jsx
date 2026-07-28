@@ -72,7 +72,7 @@ export default function PartyBuilder() {
 
       <div className="grid gap-6 lg:grid-cols-[22rem_1fr]">
         {/* ---------------------------------------------------- eixos + mapa */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <section className="panel space-y-6 p-5">
             <div className="label-caps">posição do seu partido</div>
 
@@ -132,7 +132,7 @@ export default function PartyBuilder() {
         </div>
 
         {/* ------------------------------------------------------- aliados */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="flex items-baseline justify-between">
             <div className="label-caps">partidos aliados</div>
             <span className="text-sm text-graphite-400">

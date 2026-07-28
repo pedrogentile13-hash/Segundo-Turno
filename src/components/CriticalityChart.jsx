@@ -29,7 +29,7 @@ export default function CriticalityChart({ historico = [], altura = 200, unidade
 
   return (
     <div className="panel overflow-x-auto p-3">
-      <svg viewBox={`0 0 ${largura} ${altura}`} className="h-auto w-full min-w-[420px]" role="img" aria-label="Criticidade ao longo do tempo">
+      <svg viewBox={`0 0 ${largura} ${altura}`} className="h-auto w-full min-w-[340px]" role="img" aria-label="Criticidade ao longo do tempo">
         {gradeY.map((v) => (
           <g key={v}>
             <line

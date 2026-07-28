@@ -7,6 +7,7 @@ import StatTile from '../components/StatTile.jsx';
 import { useGameStore } from '../store/gameStore.js';
 import { SEGMENTS } from '../data/segments.js';
 import { ATTRIBUTE_BY_ID } from '../data/attributes.js';
+import { useSettingsStore } from '../store/settingsStore.js';
 
 const ESTILO_STATUS = {
   eleito_primeiro_turno: { cor: 'text-calm', borda: 'border-calm/50 bg-calm/5', selo: 'vitória' },
@@ -24,6 +25,8 @@ export default function CampaignResult() {
   const perfil = useGameStore((s) => s.perfilDominante)();
   const attrs = useGameStore((s) => s.atributosCandidato)();
   const overall = useGameStore((s) => s.overallCandidato)();
+
+  const visibilidadeConfig = useSettingsStore((s) => s.visibilidadeDraft);
 
   const [resultado, setResultado] = useState(campanha.resultado);
 
@@ -44,15 +47,15 @@ export default function CampaignResult() {
       <ScreenHeader passo="apuração encerrada" titulo="Resultado da eleição" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           {/* ------------------------------------------------- placar central */}
-          <section className={`panel p-8 text-center ${estilo.borda}`}>
+          <section className={`panel p-6 text-center sm:p-8 ${estilo.borda}`}>
             <div className={`label-caps ${estilo.cor}`}>{estilo.selo}</div>
-            <div className={`mt-3 font-display text-7xl tabular-nums ${estilo.cor}`}>
+            <div className={`mt-3 font-display text-5xl tabular-nums sm:text-6xl lg:text-7xl ${estilo.cor}`}>
               {resultado.percentualFinal}
-              <span className="text-4xl">%</span>
+              <span className="text-2xl sm:text-3xl lg:text-4xl">%</span>
             </div>
-            <h2 className="mt-2 font-display text-2xl text-graphite-100">{resultado.titulo}</h2>
+            <h2 className="mt-2 font-display text-xl text-graphite-100 sm:text-2xl">{resultado.titulo}</h2>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-graphite-400">
               {resultado.comparativo}
             </p>
@@ -60,7 +63,7 @@ export default function CampaignResult() {
 
           {/* --------------------------------------------------- segundo turno */}
           {resultado.runoff && (
-            <section className="panel p-6">
+            <section className="panel p-5 sm:p-6">
               <div className="label-caps mb-4">apuração do segundo turno</div>
 
               <div className="space-y-4">
@@ -158,7 +161,7 @@ export default function CampaignResult() {
         </div>
 
         {/* ------------------------------------------------------- lateral */}
-        <aside className="space-y-4 lg:sticky lg:top-8 lg:h-fit">
+        <aside className="min-w-0 space-y-4 lg:sticky lg:top-8 lg:h-fit">
           <div className="panel p-4">
             <div className="label-caps">candidatura</div>
             <div className="mt-1 font-display text-lg text-brass-300">{perfil.dominante.nome}</div>
@@ -202,7 +205,7 @@ export default function CampaignResult() {
               type="button"
               className="btn-primary w-full"
               onClick={() => {
-                iniciarCampanha(campanha.visibilidade);
+                iniciarCampanha(visibilidadeConfig);
                 navigate('/campanha/draft');
               }}
             >

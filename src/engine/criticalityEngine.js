@@ -19,7 +19,7 @@
  */
 
 import { SEGMENTS } from '../data/segments.js';
-import { round1, clamp } from './approvalEngine.js';
+import { round1, clamp, axisAlignment } from './approvalEngine.js';
 import { weightedPickKey } from './random.js';
 
 const ESCALA_TURNO = 0.16;
@@ -213,20 +213,37 @@ export function checkGameOver({ regime, dificuldade, state, rng }) {
 
 /**
  * Como cada um dos 9 segmentos está reagindo ao governo agora.
- * Parte da aprovação geral do regime e ajusta pela reação do segmento a cada
- * linha do orçamento.
+ *
+ * Três camadas, nessa ordem de peso:
+ *  1. alinhamento ideológico com o SISTEMA (não muda de turno a turno, mas é
+ *     o que faz o painel já nascer diferente entre os segmentos);
+ *  2. reação ao orçamento, linha por linha;
+ *  3. castigo da inflação, ponderado pela volatilidade do segmento.
+ *
+ * Sem a camada 1, um orçamento exatamente no padrão devolvia o mesmo número
+ * para os nove segmentos — matematicamente correto e completamente inútil
+ * como informação de tela.
  */
-export function computeRegimeSegments({ orcamento, aprovacaoBase, inflacao = 0 }) {
+export function computeRegimeSegments({ regime, orcamento, aprovacaoBase, inflacao = 0 }) {
+  const eixosRegime = regime?.eixos;
+
   const resultado = {};
   for (const seg of SEGMENTS) {
+    let ideologia = 0;
+    if (eixosRegime) {
+      const align = axisAlignment(eixosRegime, seg.eixos); // 0 a 1
+      ideologia = seg.pesoIdeologico * (align.media - 0.6) * 45;
+    }
+
     const reacao = seg.reacaoOrcamento || {};
     let ajuste = 0;
     for (const [linha, peso] of Object.entries(reacao)) {
       const padrao = ORCAMENTO_PADRAO[linha] ?? 20;
       ajuste += peso * ((orcamento[linha] ?? padrao) - padrao) * 0.9;
     }
+
     const castigoInflacao = Math.max(0, inflacao - 8) * 0.5 * seg.volatilidade;
-    resultado[seg.id] = round1(clamp(aprovacaoBase + ajuste - castigoInflacao));
+    resultado[seg.id] = round1(clamp(aprovacaoBase + ideologia + ajuste - castigoInflacao));
   }
   return resultado;
 }

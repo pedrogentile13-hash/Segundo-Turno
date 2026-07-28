@@ -24,11 +24,15 @@ export default function SegmentBar({ segmentoId, valor, delta = null, mostrarPes
   return (
     <div className={compacto ? 'space-y-1' : 'space-y-1.5'}>
       <div className="flex items-baseline justify-between gap-2">
-        <div className="flex items-baseline gap-2 truncate">
-          <span className="label-caps text-graphite-500">{seg.curto}</span>
+        {/* min-w-0 é o que deixa o truncate funcionar: sem isso o item de flex
+            assume min-width auto e empurra a linha inteira além da tela. */}
+        <div className="flex min-w-0 items-baseline gap-2">
+          <span className="label-caps shrink-0 text-graphite-500">{seg.curto}</span>
           <span className={`truncate ${compacto ? 'text-xs' : 'text-sm'} text-graphite-200`}>{seg.nome}</span>
           {mostrarPeso && (
-            <span className="label-caps text-graphite-600">{Math.round(seg.peso * 100)}% do eleitorado</span>
+            <span className="label-caps hidden shrink-0 text-graphite-600 sm:inline">
+              {Math.round(seg.peso * 100)}% do eleitorado
+            </span>
           )}
         </div>
 
