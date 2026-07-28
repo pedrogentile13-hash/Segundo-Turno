@@ -1,0 +1,181 @@
+/**
+ * 8 arquétipos políticos FICTÍCIOS para o draft.
+ *
+ * Nenhum deles corresponde a uma pessoa real: são tipos-ideais construídos a
+ * partir de estilos de campanha genéricos (o populista de redes, o sindicalista,
+ * o fisiologista, o tecnocrata, etc). Nomes, siglas e biografias são inventados.
+ *
+ * Cada arquétipo tem:
+ *  - `attrs`: valores 0-99 nos 8 atributos (sempre com pelo menos 2 altos,
+ *    pelo menos 1 baixo, e rejeição presente em algum grau).
+ *  - `eixos`: posição ideológica usada para calcular o "perfil dominante"
+ *    do candidato montado no draft.
+ */
+
+export const ARCHETYPES = [
+  {
+    id: 'tribuno_das_redes',
+    nome: 'O Tribuno das Redes',
+    epiteto: 'Populista de direita',
+    era: 'Ciclo das redes sociais',
+    bio: 'Construiu base falando direto com o celular do eleitor. Vive de confronto, transforma qualquer crítica em prova de perseguição.',
+    forte: ['carisma', 'base_fiel'],
+    fraco: ['gestao'],
+    eixos: { economico: 45, costumes: -75 },
+    attrs: {
+      carisma: 91,
+      gestao: 34,
+      base_fiel: 93,
+      rejeicao: 74,
+      rede_aliados: 41,
+      resiliencia_imagem: 82,
+      discurso_economico: 55,
+      discurso_social: 38,
+    },
+  },
+  {
+    id: 'voz_do_sindicato',
+    nome: 'A Voz do Sindicato',
+    epiteto: 'Liderança trabalhista',
+    era: 'Ciclo das grandes greves',
+    bio: 'Saiu do chão de fábrica para o palanque. Fala a língua do salário e da conta do mercado, e tem memória afetiva no eleitorado popular.',
+    forte: ['discurso_social', 'base_fiel'],
+    fraco: ['discurso_economico'],
+    eixos: { economico: -70, costumes: 25 },
+    attrs: {
+      carisma: 84,
+      gestao: 58,
+      base_fiel: 88,
+      rejeicao: 61,
+      rede_aliados: 66,
+      resiliencia_imagem: 71,
+      discurso_economico: 33,
+      discurso_social: 94,
+    },
+  },
+  {
+    id: 'fiador_do_congresso',
+    nome: 'O Fiador do Congresso',
+    epiteto: 'Centrão pragmático',
+    era: 'Ciclo das coalizões negociadas',
+    bio: 'Nunca ganhou uma eleição no grito, mas nunca perdeu uma votação no plenário. Sabe onde fica o botão de cada gabinete.',
+    forte: ['rede_aliados', 'gestao'],
+    fraco: ['carisma'],
+    eixos: { economico: 15, costumes: -20 },
+    attrs: {
+      carisma: 38,
+      gestao: 83,
+      base_fiel: 44,
+      rejeicao: 52,
+      rede_aliados: 96,
+      resiliencia_imagem: 63,
+      discurso_economico: 62,
+      discurso_social: 54,
+    },
+  },
+  {
+    id: 'gestor_de_fundo',
+    nome: 'O Gestor de Fundo',
+    epiteto: 'Outsider liberal',
+    era: 'Ciclo antiestablishment',
+    bio: 'Veio do mercado prometendo tratar o país como uma empresa mal administrada. Ótimo em planilha, desastroso em comício de interior.',
+    forte: ['discurso_economico', 'gestao'],
+    fraco: ['discurso_social'],
+    eixos: { economico: 85, costumes: 20 },
+    attrs: {
+      carisma: 56,
+      gestao: 81,
+      base_fiel: 35,
+      rejeicao: 49,
+      rede_aliados: 39,
+      resiliencia_imagem: 58,
+      discurso_economico: 93,
+      discurso_social: 27,
+    },
+  },
+  {
+    id: 'professora_militante',
+    nome: 'A Professora Militante',
+    epiteto: 'Esquerda progressista',
+    era: 'Ciclo das pautas identitárias',
+    bio: 'Saiu da sala de aula e do movimento estudantil. Mobiliza juventude e periferia urbana como ninguém, e assusta o eleitor conservador na mesma medida.',
+    forte: ['discurso_social', 'resiliencia_imagem'],
+    fraco: ['discurso_economico'],
+    eixos: { economico: -80, costumes: 88 },
+    attrs: {
+      carisma: 73,
+      gestao: 52,
+      base_fiel: 79,
+      rejeicao: 68,
+      rede_aliados: 47,
+      resiliencia_imagem: 85,
+      discurso_economico: 29,
+      discurso_social: 90,
+    },
+  },
+  {
+    id: 'herdeiro_do_sobrenome',
+    nome: 'O Herdeiro do Sobrenome',
+    epiteto: 'Dinastia regional',
+    era: 'Ciclo das oligarquias estaduais',
+    bio: 'Terceira geração da família no mesmo estado. Herdou máquina, apadrinhados e também as inimizades — tudo junto e completo.',
+    forte: ['rede_aliados', 'base_fiel'],
+    fraco: ['resiliencia_imagem'],
+    eixos: { economico: 35, costumes: -45 },
+    attrs: {
+      carisma: 61,
+      gestao: 55,
+      base_fiel: 82,
+      rejeicao: 66,
+      rede_aliados: 87,
+      resiliencia_imagem: 31,
+      discurso_economico: 64,
+      discurso_social: 49,
+    },
+  },
+  {
+    id: 'tecnica_do_orcamento',
+    nome: 'A Técnica do Orçamento',
+    epiteto: 'Tecnocrata de carreira',
+    era: 'Ciclo dos ajustes fiscais',
+    bio: 'Passou vinte anos assinando pareceres que ninguém leu. Entende de tudo, explica mal, e perde o eleitor no terceiro slide.',
+    forte: ['gestao', 'resiliencia_imagem'],
+    fraco: ['carisma'],
+    eixos: { economico: 55, costumes: 35 },
+    attrs: {
+      carisma: 29,
+      gestao: 95,
+      base_fiel: 32,
+      rejeicao: 38,
+      rede_aliados: 51,
+      resiliencia_imagem: 88,
+      discurso_economico: 79,
+      discurso_social: 46,
+    },
+  },
+  {
+    id: 'comandante_da_ordem',
+    nome: 'O Comandante da Ordem',
+    epiteto: 'Militar da ordem pública',
+    era: 'Ciclo do medo urbano',
+    bio: 'Farda pendurada, discurso intacto. Vende segurança, hierarquia e "fim da bagunça" — e tem um piso de voto que não se move.',
+    forte: ['base_fiel', 'resiliencia_imagem'],
+    fraco: ['discurso_social'],
+    eixos: { economico: 25, costumes: -90 },
+    attrs: {
+      carisma: 54,
+      gestao: 62,
+      base_fiel: 85,
+      rejeicao: 71,
+      rede_aliados: 44,
+      resiliencia_imagem: 83,
+      discurso_economico: 48,
+      discurso_social: 31,
+    },
+  },
+];
+
+export const ARCHETYPE_BY_ID = ARCHETYPES.reduce((acc, a) => {
+  acc[a.id] = a;
+  return acc;
+}, {});
